@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toybox Defenders 3D - Asset & UI Preview</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Load FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+    <!-- UI LAYER (HTML/CSS) -->
+    <div id="ui-layer">
+
+        <!-- TOP BAR: Currency (Always visible in menus) -->
+        <div id="top-bar">
+            <div class="currency"><i class="fas fa-coins" style="color: gold;"></i> <span id="coin-amount">500</span></div>
+            <div class="currency"><i class="far fa-gem" style="color: cyan;"></i> <span id="diamond-amount">50</span></div>
+        </div>
+
+        <!-- MAIN MENU -->
+        <div id="main-menu" class="screen active">
+            <h1 class="game-title">Cardboard Kingdom:<br>Toybox Defenders</h1>
+            <div class="menu-buttons">
+                <button onclick="showScreen('char-select')"><i class="fas fa-play"></i> PLAY (Select Toy)</button>
+                <button onclick="showScreen('shop')"><i class="fas fa-store"></i> TOY STORE (Skins)</button>
+            </div>
+            <div class="asset-desc">
+                <p><em>[UI Asset Design: Menu will feature a 3D animated toy box in the background with upbeat magical music.]</em></p>
+            </div>
+        </div>
+
+        <!-- CHARACTER SELECT -->
+        <div id="char-select" class="screen">
+            <h2>Select Your Toy!</h2>
+            <div class="cards-container">
+                <!-- Mecha -->
+                <div class="char-card" onclick="startGame('mecha')">
+                    <h3>G-Bot (Mecha)</h3>
+                    <div class="char-img" style="background-color: #3498db;">[Mecha 3D Model]</div>
+                    <p><strong>Type:</strong> Ranged / Action</p>
+                    <p><strong>Skill:</strong> Rocket Dash</p>
+                    <button class="play-btn">PLAY</button>
+                </div>
+                <!-- Teddy -->
+                <div class="char-card" onclick="startGame('teddy')">
+                    <h3>Mr. Fluffs (Teddy)</h3>
+                    <div class="char-img" style="background-color: #e67e22; border-radius:50%;">[Teddy 3D Model]</div>
+                    <p><strong>Type:</strong> Melee / Tank</p>
+                    <p><strong>Skill:</strong> Bear Hug (AoE)</p>
+                    <button class="play-btn">PLAY</button>
+                </div>
+                <!-- Doll -->
+                <div class="char-card" onclick="startGame('doll')">
+                    <h3>Bella (Fashion Doll)</h3>
+                    <div class="char-img" style="background-color: #e74c3c; width:40px; margin:auto;">[Doll 3D Model]</div>
+                    <p><strong>Type:</strong> Magic / Fast</p>
+                    <p><strong>Skill:</strong> Glitter Twirl</p>
+                    <button class="play-btn">PLAY</button>
+                </div>
+            </div>
+            <button class="back-btn" onclick="showScreen('main-menu')">Back to Menu</button>
+        </div>
+
+        <!-- SKIN SHOP -->
+        <div id="shop" class="screen">
+            <h2>Toy Store (Skins)</h2>
+            <div class="cards-container">
+                <!-- Coin Skin -->
+                <div class="skin-card">
+                    <h3>Knight G-Bot</h3>
+                    <div class="char-img" style="background: linear-gradient(45deg, #7f8c8d, #bdc3c7);">[Knight Armor 3D]</div>
+                    <p>Turns Mecha into a medieval toy knight!</p>
+                    <button class="buy-coin-btn" onclick="buySkin(200, 'coin')"><i class="fas fa-coins"></i> 200</button>
+                </div>
+                <!-- Diamond Skin -->
+                <div class="skin-card premium">
+                    <h3>Cyber-Punk Bella <i class="fas fa-star" style="color:yellow;"></i></h3>
+                    <div class="char-img" style="background: linear-gradient(45deg, #9b59b6, #e74c3c);">[Neon Cyber 3D]</div>
+                    <p>Premium neon effects and new voice lines!</p>
+                    <button class="buy-diamond-btn" onclick="buySkin(100, 'diamond')"><i class="far fa-gem"></i> 100</button>
+                </div>
+            </div>
+            <button class="back-btn" onclick="showScreen('main-menu')">Back to Menu</button>
+        </div>
+
+        <!-- GAME UI (HUD) -->
+        <div id="game-ui" class="screen">
+            <div id="hud-top">
+                <div class="hud-box">Level: <span id="game-stage">1</span> - <span id="stage-name">The Wooden Floor</span></div>
+                <div class="hud-box">Toy Power: <span id="in-game-level">1</span>/10 (XP: <span id="xp-display">0%</span>)</div>
+            </div>
+
+            <div id="story-popup" style="display:none;">
+                <h3 id="story-title">New Level!</h3>
+                <p id="story-text">Moving to the next area...</p>
+                <button onclick="document.getElementById('story-popup').style.display='none'">Continue</button>
+            </div>
+
+            <div id="hud-bottom">
+                <p><i class="fas fa-keyboard"></i> WASD to Move | Mouse to Aim | Click to Shoot</p>
+                <button id="ultimate-btn" onclick="useUltimate()">ULTIMATE (Costs 2 Power)</button>
+            </div>
+
+            <div id="boss-warning" style="display: none;">
+                <i class="fas fa-exclamation-triangle"></i> WARNING: GIANT PET CAT APPROACHING!
+            </div>
+        </div>
+
+        <!-- GAME OVER -->
+        <div id="game-over" class="screen">
+            <h2>Your Toy Broke!</h2>
+            <p>Coins Earned: <span id="earned-coins">0</span></p>
+            <button onclick="location.reload()">Back to Toybox</button>
+        </div>
+    </div>
+
+    <!-- 3D Canvas -->
+    <div id="game-container"></div>
+
+    <script src="game.js"></script>
+</body>
+</html>
