@@ -284,85 +284,111 @@ function createTeddy() {
 function createDoll() {
     const group = new THREE.Group();
     // Materials for plastic doll
-    const skinMat = new THREE.MeshStandardMaterial({ color: 0xffccaa, roughness: 0.3, metalness: 0.1 });
-    const dressMat = new THREE.MeshStandardMaterial({ color: 0xe74c3c, roughness: 0.6, metalness: 0.1 });
-    const hairMat = new THREE.MeshStandardMaterial({ color: 0xf1c40f, roughness: 0.7, metalness: 0.0 });
+    const skinMat = new THREE.MeshStandardMaterial({ color: 0xffdbac, roughness: 0.3, metalness: 0.1 });
+    const dressMat = new THREE.MeshStandardMaterial({ color: 0xff1493, roughness: 0.6, metalness: 0.1 }); // Hot Pink
+    const hairMat = new THREE.MeshStandardMaterial({ color: 0xffe773, roughness: 0.7, metalness: 0.0 });
+    const blackMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.2, metalness: 0.8 }); // Glasses
     const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5, metalness: 0.1 });
 
-    // Dress Skirt (Cone)
-    const skirt = new THREE.Mesh(new THREE.ConeGeometry(0.9, 1.4, 32), dressMat);
-    skirt.position.y = 0.9;
+    // Long slim Legs
+    const legGeo = new THREE.CylinderGeometry(0.12, 0.08, 1.2, 32);
+    const leftLeg = new THREE.Mesh(legGeo, skinMat);
+    leftLeg.position.set(-0.25, 0.6, 0);
+    leftLeg.castShadow = true;
+    group.add(leftLeg);
+    const rightLeg = new THREE.Mesh(legGeo, skinMat);
+    rightLeg.position.set(0.25, 0.6, 0);
+    rightLeg.castShadow = true;
+    group.add(rightLeg);
+
+    // High Heels (Shoes)
+    const heelGeo = new THREE.ConeGeometry(0.15, 0.3, 32);
+    const leftHeel = new THREE.Mesh(heelGeo, whiteMat);
+    leftHeel.position.set(-0.25, 0.1, 0.1);
+    leftHeel.rotation.x = -Math.PI / 4;
+    leftHeel.castShadow = true;
+    group.add(leftHeel);
+    const rightHeel = new THREE.Mesh(heelGeo, whiteMat);
+    rightHeel.position.set(0.25, 0.1, 0.1);
+    rightHeel.rotation.x = -Math.PI / 4;
+    rightHeel.castShadow = true;
+    group.add(rightHeel);
+
+    // Dress Skirt (A-line)
+    const skirtGeo = new THREE.CylinderGeometry(0.25, 0.6, 0.8, 32);
+    const skirt = new THREE.Mesh(skirtGeo, dressMat);
+    skirt.position.y = 1.3;
     skirt.castShadow = true;
     group.add(skirt);
 
-    // Dress Frill (Bottom)
-    const frill = new THREE.Mesh(new THREE.TorusGeometry(0.85, 0.1, 16, 64), whiteMat);
-    frill.rotation.x = Math.PI / 2;
-    frill.position.y = 0.2;
-    frill.castShadow = true;
-    group.add(frill);
-
-    // Torso
-    const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.4, 0.8, 32), dressMat);
-    torso.position.y = 2.0;
+    // Torso (Slim waist)
+    const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.2, 0.7, 32), dressMat);
+    torso.position.y = 1.95;
     torso.castShadow = true;
     group.add(torso);
 
     // Belt
-    const belt = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.12, 32), whiteMat);
-    belt.position.y = 1.6;
+    const belt = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.27, 0.1, 32), whiteMat);
+    belt.position.y = 1.65;
     belt.castShadow = true;
     group.add(belt);
 
+    // Neck
+    const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.2, 16), skinMat);
+    neck.position.y = 2.35;
+    neck.castShadow = true;
+    group.add(neck);
+
     // Head
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.45, 32, 32), skinMat);
-    head.position.y = 2.7;
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.35, 32, 32), skinMat);
+    head.position.y = 2.65;
     head.castShadow = true;
     group.add(head);
 
-    // Hair (Top Volume)
-    const hair = new THREE.Mesh(new THREE.SphereGeometry(0.5, 32, 32, 0, Math.PI * 2, 0, Math.PI/1.8), hairMat);
-    hair.position.set(0, 2.75, -0.05);
-    hair.castShadow = true;
-    group.add(hair);
+    // Hair Base (Top volume)
+    const hairTop = new THREE.Mesh(new THREE.SphereGeometry(0.38, 32, 32, 0, Math.PI * 2, 0, Math.PI/1.7), hairMat);
+    hairTop.position.set(0, 2.68, -0.05);
+    hairTop.castShadow = true;
+    group.add(hairTop);
 
-    // Hair (Ponytail)
-    const ponytail = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.8, 16), hairMat);
-    ponytail.position.set(0, 2.3, -0.5);
-    ponytail.rotation.x = Math.PI / 6;
-    ponytail.castShadow = true;
-    group.add(ponytail);
+    // Hair Back (Flowing down)
+    const hairBack = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.45, 1.2, 32, 1, false, Math.PI, Math.PI), hairMat);
+    hairBack.position.set(0, 2.1, -0.15);
+    hairBack.castShadow = true;
+    group.add(hairBack);
 
-    // Bow (Back of head)
-    const bow = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.2, 0.1), dressMat);
-    bow.position.set(0, 2.6, -0.45);
-    bow.castShadow = true;
-    group.add(bow);
+    // Sunglasses (On top of head)
+    const sunglassGeo = new THREE.BoxGeometry(0.6, 0.15, 0.1);
+    const sunglasses = new THREE.Mesh(sunglassGeo, blackMat);
+    sunglasses.position.set(0, 3.0, 0.25);
+    sunglasses.rotation.x = -Math.PI / 8;
+    sunglasses.castShadow = true;
+    group.add(sunglasses);
 
-    // Arms
-    const armGeo = new THREE.CapsuleGeometry(0.12, 0.8, 16, 16);
+    // Slim Arms
+    const armGeo = new THREE.CapsuleGeometry(0.07, 0.8, 16, 16);
     const leftArm = new THREE.Mesh(armGeo, skinMat);
-    leftArm.position.set(-0.4, 2.1, 0);
-    leftArm.rotation.z = Math.PI / 8;
+    leftArm.position.set(-0.35, 1.9, 0);
+    leftArm.rotation.z = Math.PI / 10;
     leftArm.castShadow = true;
     group.add(leftArm);
 
     const rightArm = new THREE.Mesh(armGeo, skinMat);
-    rightArm.position.set(0.4, 2.1, 0);
-    rightArm.rotation.z = -Math.PI / 8;
-    rightArm.rotation.x = -Math.PI / 4; // Right arm pointing forward
+    rightArm.position.set(0.35, 1.9, 0);
+    rightArm.rotation.z = -Math.PI / 10;
+    rightArm.rotation.x = -Math.PI / 3; // Right arm up/forward holding wand
     rightArm.castShadow = true;
     group.add(rightArm);
 
     // Magic Wand (Right Hand)
-    const wandHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.8, 16), whiteMat);
-    wandHandle.position.set(0.4, 1.8, 0.4);
+    const wandHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.7, 16), whiteMat);
+    wandHandle.position.set(0.35, 1.8, 0.5);
     wandHandle.rotation.x = -Math.PI / 2;
     wandHandle.castShadow = true;
     group.add(wandHandle);
 
-    const wandStar = new THREE.Mesh(new THREE.DodecahedronGeometry(0.15), new THREE.MeshLambertMaterial({color: 0xf1c40f, emissive: 0xf1c40f, emissiveIntensity: 0.5}));
-    wandStar.position.set(0.4, 1.8, 0.8);
+    const wandStar = new THREE.Mesh(new THREE.DodecahedronGeometry(0.12), new THREE.MeshLambertMaterial({color: 0xffffff, emissive: 0xff69b4, emissiveIntensity: 0.8}));
+    wandStar.position.set(0.35, 1.8, 0.85);
     wandStar.castShadow = true;
     group.add(wandStar);
 
