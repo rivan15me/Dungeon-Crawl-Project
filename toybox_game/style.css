@@ -1,0 +1,218 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #1a1a1a;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+}
+
+#game-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+#ui-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none; /* Let clicks pass to 3D canvas when playing */
+}
+
+/* UI Screens */
+.screen {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: auto; /* Catch clicks for UI */
+}
+.screen.active {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(20, 20, 30, 0.9); /* Dark overlay for menus */
+}
+#game-ui.active, #showcase-ui.active {
+    background: none; /* Clear background for 3D visibility */
+    pointer-events: none; /* Let clicks go through to canvas if needed, but buttons will catch them */
+}
+#showcase-ui.active {
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 20%, rgba(0,0,0,0) 80%, rgba(0,0,0,0.8) 100%);
+}
+#showcase-ui button {
+    pointer-events: auto;
+}
+
+/* Top Bar Currency */
+#top-bar {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    display: flex;
+    gap: 20px;
+    font-size: 20px;
+    font-weight: bold;
+    z-index: 100;
+    pointer-events: auto;
+}
+.currency { background: rgba(0,0,0,0.5); padding: 5px 15px; border-radius: 20px; }
+
+/* Main Menu */
+.game-title {
+    font-size: 4em;
+    text-align: center;
+    color: #f1c40f;
+    text-shadow: 3px 3px 0 #c0392b, -1px -1px 0 #c0392b;
+    margin-bottom: 50px;
+    line-height: 1.1;
+}
+.menu-buttons { display: flex; flex-direction: column; gap: 20px; }
+.menu-buttons button {
+    padding: 15px 40px;
+    font-size: 24px;
+    background: #3498db;
+    color: white;
+    border: 3px solid #2980b9;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+    font-weight: bold;
+}
+.menu-buttons button:hover { background: #2980b9; transform: scale(1.05); }
+
+/* Asset Descriptions in UI */
+.asset-desc {
+    margin-top: 40px;
+    color: #aaa;
+    max-width: 600px;
+    text-align: center;
+    border: 1px dashed #555;
+    padding: 10px;
+}
+
+/* Character & Shop Cards */
+.cards-container {
+    display: flex;
+    gap: 30px;
+    margin-top: 20px;
+}
+.char-card, .skin-card {
+    background: #2c3e50;
+    padding: 20px;
+    border-radius: 15px;
+    width: 250px;
+    text-align: center;
+    border: 2px solid #34495e;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.char-card:hover { transform: translateY(-10px); border-color: #f1c40f; }
+.premium { border-color: #9b59b6; box-shadow: 0 0 15px rgba(155, 89, 182, 0.5); }
+.char-img {
+    height: 120px;
+    margin: 15px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+}
+.play-btn, .buy-coin-btn, .buy-diamond-btn {
+    width: 100%; padding: 10px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;
+}
+.play-btn { background: #2ecc71; color: white; }
+.buy-coin-btn { background: #f1c40f; color: #333; }
+.buy-diamond-btn { background: #9b59b6; color: white; }
+.back-btn { margin-top: 40px; padding: 10px 20px; background: #7f8c8d; border: none; color: white; cursor: pointer; border-radius: 5px;}
+
+/* Game HUD */
+#hud-top {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.hud-box {
+    background: rgba(0,0,0,0.7);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 20px;
+    font-weight: bold;
+    border-left: 5px solid #3498db;
+}
+
+#hud-bottom {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    pointer-events: auto;
+}
+#ultimate-btn {
+    background: linear-gradient(to right, #e74c3c, #c0392b);
+    padding: 15px 30px;
+    font-size: 20px;
+    border-radius: 30px;
+    border: 2px solid white;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.5);
+}
+#ultimate-btn:active { transform: scale(0.95); }
+
+#boss-warning {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 30px;
+    color: #ff4757;
+    background: rgba(0,0,0,0.8);
+    padding: 20px 40px;
+    border-radius: 10px;
+    border: 3px solid #ff4757;
+    font-weight: bold;
+    animation: pulse 0.5s infinite alternate;
+}
+
+/* Story Popup */
+#story-popup {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #ecf0f1;
+    color: #2c3e50;
+    padding: 30px;
+    border-radius: 15px;
+    border: 5px solid #bdc3c7;
+    text-align: center;
+    pointer-events: auto;
+    z-index: 50;
+    width: 400px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+}
+#story-popup h3 { color: #2980b9; margin-top:0;}
+#story-popup button { background: #27ae60; color:white; padding: 10px 20px; border:none; border-radius:5px; cursor:pointer;}
+
+@keyframes pulse {
+    from { transform: translate(-50%, -50%) scale(1); }
+    to { transform: translate(-50%, -50%) scale(1.05); }
+}
