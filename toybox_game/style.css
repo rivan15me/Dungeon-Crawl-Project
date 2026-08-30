@@ -43,9 +43,16 @@ body, html {
     justify-content: center;
     background: rgba(20, 20, 30, 0.9); /* Dark overlay for menus */
 }
-#game-ui.active {
-    background: none;
-    pointer-events: none; /* Very important: let clicks go to game! */
+#game-ui.active, #showcase-ui.active {
+    background: none; /* Clear background for 3D visibility */
+    pointer-events: none; /* Let clicks go through to canvas if needed, but buttons will catch them */
+}
+#showcase-ui.active {
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 20%, rgba(0,0,0,0) 80%, rgba(0,0,0,0.8) 100%);
+}
+#showcase-ui button {
+    pointer-events: auto;
 }
 
 /* Top Bar Currency */

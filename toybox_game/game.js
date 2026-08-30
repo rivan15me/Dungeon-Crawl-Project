@@ -16,9 +16,15 @@ function showScreen(screenId) {
     // Manage 3D Canvas visibility logic
     if (screenId === 'game-ui') {
         isGameRunning = true;
+        isShowcaseRunning = false;
+        document.getElementById('game-container').style.display = 'block';
+    } else if (screenId === 'showcase-ui') {
+        isGameRunning = false;
+        isShowcaseRunning = true;
         document.getElementById('game-container').style.display = 'block';
     } else {
         isGameRunning = false;
+        isShowcaseRunning = false;
         document.getElementById('game-container').style.display = 'none'; // hide 3D in menus
     }
 }
@@ -76,7 +82,9 @@ scene.add(ground);
 
 // --- Game State ---
 let isGameRunning = false;
+let isShowcaseRunning = false;
 let playerMesh;
+let showcaseMesh;
 let playerType = 'mecha';
 const playerSpeed = 12;
 const bullets = [];
@@ -112,45 +120,86 @@ function createMecha() {
     const group = new THREE.Group();
     const mat = new THREE.MeshLambertMaterial({ color: 0x3498db });
     const darkMat = new THREE.MeshLambertMaterial({ color: 0x2c3e50 });
+    const lightMat = new THREE.MeshLambertMaterial({ color: 0xecf0f1 });
 
-    // Body
-    const body = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.5, 1), mat);
-    body.position.y = 1.5;
+    // Body Core
+    const body = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.6, 1.2), mat);
+    body.position.y = 1.6;
     body.castShadow = true;
     group.add(body);
 
+    // Chest Plate
+    const chest = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.8, 0.2), lightMat);
+    chest.position.set(0, 1.8, 0.65);
+    group.add(chest);
+
+    // Power Core (Glowing)
+    const core = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.3), new THREE.MeshLambertMaterial({color: 0xe74c3c, emissive: 0xe74c3c}));
+    core.rotation.x = Math.PI / 2;
+    core.position.set(0, 1.8, 0.75);
+    group.add(core);
+
     // Head
-    const head = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), mat);
-    head.position.y = 2.7;
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.9), mat);
+    head.position.y = 2.9;
     head.castShadow = true;
     group.add(head);
 
-    // Eye visor
-    const visor = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.2, 0.2), new THREE.MeshLambertMaterial({color: 0xf1c40f}));
-    visor.position.set(0, 2.7, 0.4);
+    // Antenna
+    const antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.6), darkMat);
+    antenna.position.set(0.4, 3.5, 0);
+    group.add(antenna);
+
+    // Eye visor (Glowing)
+    const visor = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.25, 0.2), new THREE.MeshLambertMaterial({color: 0xf1c40f, emissive: 0xf1c40f, emissiveIntensity: 0.5}));
+    visor.position.set(0, 2.9, 0.46);
     group.add(visor);
+
+    // Shoulders
+    const shoulderGeo = new THREE.SphereGeometry(0.4, 16, 16);
+    const leftShoulder = new THREE.Mesh(shoulderGeo, mat);
+    leftShoulder.position.set(-1.1, 2.2, 0);
+    group.add(leftShoulder);
+    const rightShoulder = new THREE.Mesh(shoulderGeo, mat);
+    rightShoulder.position.set(1.1, 2.2, 0);
+    group.add(rightShoulder);
 
     // Arms
     const armGeo = new THREE.BoxGeometry(0.4, 1.2, 0.4);
     const leftArm = new THREE.Mesh(armGeo, darkMat);
-    leftArm.position.set(-1, 1.5, 0);
+    leftArm.position.set(-1.1, 1.4, 0);
     leftArm.castShadow = true;
     group.add(leftArm);
     const rightArm = new THREE.Mesh(armGeo, darkMat);
-    rightArm.position.set(1, 1.5, 0);
+    rightArm.position.set(1.1, 1.4, 0);
     rightArm.castShadow = true;
     group.add(rightArm);
 
+    // Hand Cannon (Right Arm)
+    const cannon = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.25, 0.8), mat);
+    cannon.rotation.x = Math.PI / 2;
+    cannon.position.set(1.1, 0.8, 0.3);
+    group.add(cannon);
+
     // Legs
-    const legGeo = new THREE.BoxGeometry(0.5, 1, 0.5);
+    const legGeo = new THREE.BoxGeometry(0.6, 1.2, 0.6);
     const leftLeg = new THREE.Mesh(legGeo, darkMat);
-    leftLeg.position.set(-0.4, 0.5, 0);
+    leftLeg.position.set(-0.5, 0.6, 0);
     leftLeg.castShadow = true;
     group.add(leftLeg);
     const rightLeg = new THREE.Mesh(legGeo, darkMat);
-    rightLeg.position.set(0.4, 0.5, 0);
+    rightLeg.position.set(0.5, 0.6, 0);
     rightLeg.castShadow = true;
     group.add(rightLeg);
+
+    // Feet
+    const footGeo = new THREE.BoxGeometry(0.8, 0.3, 1);
+    const leftFoot = new THREE.Mesh(footGeo, mat);
+    leftFoot.position.set(-0.5, 0.15, 0.1);
+    group.add(leftFoot);
+    const rightFoot = new THREE.Mesh(footGeo, mat);
+    rightFoot.position.set(0.5, 0.15, 0.1);
+    group.add(rightFoot);
 
     return group;
 }
@@ -158,56 +207,81 @@ function createMecha() {
 function createTeddy() {
     const group = new THREE.Group();
     const mat = new THREE.MeshLambertMaterial({ color: 0xe67e22 });
-    const lightMat = new THREE.MeshLambertMaterial({ color: 0xf39c12 });
+    const lightMat = new THREE.MeshLambertMaterial({ color: 0xf1c40f }); // Lighter belly
+    const darkMat = new THREE.MeshLambertMaterial({ color: 0x000000 });
 
     // Body (Fat sphere)
-    const body = new THREE.Mesh(new THREE.SphereGeometry(1.2, 16, 16), mat);
-    body.position.y = 1.2;
+    const body = new THREE.Mesh(new THREE.SphereGeometry(1.4, 24, 24), mat);
+    body.position.y = 1.4;
     body.castShadow = true;
     group.add(body);
 
     // Belly patch
-    const belly = new THREE.Mesh(new THREE.SphereGeometry(0.9, 16, 16), lightMat);
-    belly.position.set(0, 1.2, 0.4);
+    const belly = new THREE.Mesh(new THREE.SphereGeometry(1.1, 24, 24), lightMat);
+    belly.position.set(0, 1.3, 0.4);
     group.add(belly);
 
     // Head
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.8, 16, 16), mat);
-    head.position.y = 2.6;
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.9, 24, 24), mat);
+    head.position.set(0, 2.9, 0.2);
     head.castShadow = true;
     group.add(head);
 
+    // Eyes (Button eyes)
+    const eyeGeo = new THREE.CylinderGeometry(0.15, 0.15, 0.1, 16);
+    const leftEye = new THREE.Mesh(eyeGeo, darkMat);
+    leftEye.rotation.x = Math.PI / 2;
+    leftEye.position.set(-0.35, 3.1, 1);
+    group.add(leftEye);
+    const rightEye = new THREE.Mesh(eyeGeo, darkMat);
+    rightEye.rotation.x = Math.PI / 2;
+    rightEye.position.set(0.35, 3.1, 1);
+    group.add(rightEye);
+
     // Ears
-    const earGeo = new THREE.SphereGeometry(0.3, 16, 16);
+    const earGeo = new THREE.SphereGeometry(0.4, 16, 16);
     const leftEar = new THREE.Mesh(earGeo, mat);
-    leftEar.position.set(-0.6, 3.1, 0);
+    leftEar.position.set(-0.7, 3.6, 0.1);
     group.add(leftEar);
     const rightEar = new THREE.Mesh(earGeo, mat);
-    rightEar.position.set(0.6, 3.1, 0);
+    rightEar.position.set(0.7, 3.6, 0.1);
     group.add(rightEar);
 
     // Snout
-    const snout = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 16), lightMat);
-    snout.position.set(0, 2.5, 0.7);
+    const snout = new THREE.Mesh(new THREE.SphereGeometry(0.4, 16, 16), lightMat);
+    snout.position.set(0, 2.8, 1);
     group.add(snout);
 
     // Nose
-    const nose = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 8), new THREE.MeshLambertMaterial({color: 0x000000}));
-    nose.position.set(0, 2.6, 0.95);
+    const nose = new THREE.Mesh(new THREE.SphereGeometry(0.15, 8, 8), darkMat);
+    nose.position.set(0, 2.95, 1.35);
     group.add(nose);
 
-    // Arms
-    const armGeo = new THREE.CapsuleGeometry(0.3, 0.6, 8, 8);
+    // Arms (Thicker)
+    const armGeo = new THREE.CapsuleGeometry(0.4, 0.8, 8, 16);
     const leftArm = new THREE.Mesh(armGeo, mat);
-    leftArm.position.set(-1.2, 1.5, 0);
-    leftArm.rotation.z = Math.PI / 4;
+    leftArm.position.set(-1.4, 1.8, 0.2);
+    leftArm.rotation.z = Math.PI / 6;
     leftArm.castShadow = true;
     group.add(leftArm);
     const rightArm = new THREE.Mesh(armGeo, mat);
-    rightArm.position.set(1.2, 1.5, 0);
-    rightArm.rotation.z = -Math.PI / 4;
+    rightArm.position.set(1.4, 1.8, 0.2);
+    rightArm.rotation.z = -Math.PI / 6;
     rightArm.castShadow = true;
     group.add(rightArm);
+
+    // Legs
+    const legGeo = new THREE.CapsuleGeometry(0.45, 0.6, 8, 16);
+    const leftLeg = new THREE.Mesh(legGeo, mat);
+    leftLeg.position.set(-0.7, 0.5, 0.3);
+    leftLeg.rotation.x = -Math.PI / 8;
+    leftLeg.castShadow = true;
+    group.add(leftLeg);
+    const rightLeg = new THREE.Mesh(legGeo, mat);
+    rightLeg.position.set(0.7, 0.5, 0.3);
+    rightLeg.rotation.x = -Math.PI / 8;
+    rightLeg.castShadow = true;
+    group.add(rightLeg);
 
     return group;
 }
@@ -217,44 +291,178 @@ function createDoll() {
     const skinMat = new THREE.MeshLambertMaterial({ color: 0xffe0bd });
     const dressMat = new THREE.MeshLambertMaterial({ color: 0xe74c3c });
     const hairMat = new THREE.MeshLambertMaterial({ color: 0xf1c40f }); // Blonde
+    const whiteMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
 
-    // Dress (Cone)
-    const dress = new THREE.Mesh(new THREE.ConeGeometry(0.8, 1.5, 16), dressMat);
-    dress.position.y = 1;
-    dress.castShadow = true;
-    group.add(dress);
+    // Dress Skirt (Cone)
+    const skirt = new THREE.Mesh(new THREE.ConeGeometry(0.9, 1.4, 32), dressMat);
+    skirt.position.y = 0.9;
+    skirt.castShadow = true;
+    group.add(skirt);
+
+    // Dress Frill (Bottom)
+    const frill = new THREE.Mesh(new THREE.TorusGeometry(0.85, 0.1, 8, 32), whiteMat);
+    frill.rotation.x = Math.PI / 2;
+    frill.position.y = 0.2;
+    group.add(frill);
 
     // Torso
-    const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.4, 0.8), dressMat);
-    torso.position.y = 2.1;
+    const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.4, 0.8, 16), dressMat);
+    torso.position.y = 2.0;
     torso.castShadow = true;
     group.add(torso);
 
+    // Belt
+    const belt = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.1, 16), whiteMat);
+    belt.position.y = 1.6;
+    group.add(belt);
+
     // Head
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.4, 16, 16), skinMat);
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.45, 24, 24), skinMat);
     head.position.y = 2.7;
     head.castShadow = true;
     group.add(head);
 
-    // Hair
-    const hair = new THREE.Mesh(new THREE.SphereGeometry(0.45, 16, 16, 0, Math.PI * 2, 0, Math.PI/1.5), hairMat);
-    hair.position.y = 2.75;
+    // Hair (Top Volume)
+    const hair = new THREE.Mesh(new THREE.SphereGeometry(0.5, 24, 24, 0, Math.PI * 2, 0, Math.PI/1.8), hairMat);
+    hair.position.set(0, 2.75, -0.05);
     group.add(hair);
 
+    // Hair (Ponytail)
+    const ponytail = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.8, 16), hairMat);
+    ponytail.position.set(0, 2.3, -0.5);
+    ponytail.rotation.x = Math.PI / 6;
+    group.add(ponytail);
+
+    // Bow (Back of head)
+    const bow = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.2, 0.1), dressMat);
+    bow.position.set(0, 2.6, -0.45);
+    group.add(bow);
+
     // Arms
-    const armGeo = new THREE.CylinderGeometry(0.1, 0.1, 1);
+    const armGeo = new THREE.CapsuleGeometry(0.1, 0.8, 8, 8);
     const leftArm = new THREE.Mesh(armGeo, skinMat);
-    leftArm.position.set(-0.5, 2, 0);
-    leftArm.rotation.z = Math.PI / 6;
+    leftArm.position.set(-0.4, 2.1, 0);
+    leftArm.rotation.z = Math.PI / 8;
     leftArm.castShadow = true;
     group.add(leftArm);
+
     const rightArm = new THREE.Mesh(armGeo, skinMat);
-    rightArm.position.set(0.5, 2, 0);
-    rightArm.rotation.z = -Math.PI / 6;
+    rightArm.position.set(0.4, 2.1, 0);
+    rightArm.rotation.z = -Math.PI / 8;
+    rightArm.rotation.x = -Math.PI / 4; // Right arm pointing forward
     rightArm.castShadow = true;
     group.add(rightArm);
 
+    // Magic Wand (Right Hand)
+    const wandHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.8), whiteMat);
+    wandHandle.position.set(0.4, 1.8, 0.4);
+    wandHandle.rotation.x = -Math.PI / 2;
+    group.add(wandHandle);
+
+    const wandStar = new THREE.Mesh(new THREE.DodecahedronGeometry(0.1), new THREE.MeshLambertMaterial({color: 0xf1c40f, emissive: 0xf1c40f}));
+    wandStar.position.set(0.4, 1.8, 0.8);
+    group.add(wandStar);
+
     return group;
+}
+
+// --- Showcase Logic ---
+let showcaseSpotlight;
+let showcasePodium;
+
+function startShowcase() {
+    showScreen('showcase-ui');
+
+    // Setup Showcase Environment
+    scene.background = new THREE.Color(0x111111); // Dark studio background
+    ground.material.color.setHex(0x222222); // Dark floor
+
+    // Reset camera for closeup
+    camera.position.set(0, 5, 10);
+    camera.lookAt(0, 2, 0);
+
+    // Add spotlight
+    if (!showcaseSpotlight) {
+        showcaseSpotlight = new THREE.SpotLight(0xffffff, 1.5);
+        showcaseSpotlight.position.set(0, 10, 5);
+        showcaseSpotlight.angle = Math.PI / 4;
+        showcaseSpotlight.penumbra = 0.5;
+        showcaseSpotlight.castShadow = true;
+        scene.add(showcaseSpotlight);
+    }
+
+    if (!showcasePodium) {
+        const podiumGeo = new THREE.CylinderGeometry(3, 3.5, 0.5, 32);
+        const podiumMat = new THREE.MeshStandardMaterial({ color: 0x555555, roughness: 0.2, metalness: 0.8 });
+        showcasePodium = new THREE.Mesh(podiumGeo, podiumMat);
+        showcasePodium.position.y = 0.25;
+        showcasePodium.receiveShadow = true;
+        scene.add(showcasePodium);
+    }
+
+    // Dim main directional light to emphasize spotlight
+    dirLight.intensity = 0.2;
+    ambientLight.intensity = 0.3;
+
+    // Hide game entities
+    if (playerMesh) scene.remove(playerMesh);
+    enemies.forEach(e => scene.remove(e.mesh));
+
+    switchShowcase('mecha');
+
+    lastTime = performance.now();
+    requestAnimationFrame(showcaseLoop);
+}
+
+function switchShowcase(type) {
+    if (showcaseMesh) scene.remove(showcaseMesh);
+
+    if (type === 'mecha') {
+        showcaseMesh = createMecha();
+    } else if (type === 'teddy') {
+        showcaseMesh = createTeddy();
+    } else if (type === 'doll') {
+        showcaseMesh = createDoll();
+    }
+
+    // Position on podium
+    showcaseMesh.position.y = 0.5;
+
+    // Scale up slightly for better viewing
+    showcaseMesh.scale.setScalar(1.5);
+
+    scene.add(showcaseMesh);
+}
+
+function exitShowcase() {
+    isShowcaseRunning = false;
+    if (showcaseMesh) scene.remove(showcaseMesh);
+    if (showcaseSpotlight) scene.remove(showcaseSpotlight);
+    if (showcasePodium) scene.remove(showcasePodium);
+    showcaseSpotlight = null;
+    showcasePodium = null;
+
+    // Restore lighting
+    dirLight.intensity = 0.8;
+    ambientLight.intensity = 0.6;
+
+    showScreen('main-menu');
+}
+
+function showcaseLoop() {
+    if (!isShowcaseRunning) return;
+
+    const now = performance.now();
+    const dt = (now - lastTime) / 1000;
+    lastTime = now;
+
+    if (showcaseMesh) {
+        // Slowly rotate character
+        showcaseMesh.rotation.y += 0.5 * dt;
+    }
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(showcaseLoop);
 }
 
 // --- Game Logic ---
@@ -274,6 +482,9 @@ function startGame(type) {
     }
 
     scene.add(playerMesh);
+
+    // Reset camera for game
+    camera.position.set(0, 25, 20);
 
     // Reset State
     gameStage = 1;

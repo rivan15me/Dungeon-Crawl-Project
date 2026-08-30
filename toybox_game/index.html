@@ -25,11 +25,26 @@
             <h1 class="game-title">Cardboard Kingdom:<br>Toybox Defenders</h1>
             <div class="menu-buttons">
                 <button onclick="showScreen('char-select')"><i class="fas fa-play"></i> PLAY (Select Toy)</button>
+                <button onclick="startShowcase()"><i class="fas fa-search"></i> 3D CHARACTER SHOWCASE</button>
                 <button onclick="showScreen('shop')"><i class="fas fa-store"></i> TOY STORE (Skins)</button>
             </div>
             <div class="asset-desc">
-                <p><em>[UI Asset Design: Menu will feature a 3D animated toy box in the background with upbeat magical music.]</em></p>
+                <p><em>Click "3D Character Showcase" to view high-detail closeups of the main heroes!</em></p>
             </div>
+        </div>
+
+        <!-- SHOWCASE UI -->
+        <div id="showcase-ui" class="screen">
+            <h2 style="font-size: 3em; margin-bottom: 5px; text-shadow: 2px 2px 0 #000;">3D Character Viewer</h2>
+            <p style="font-size: 1.2em; margin-bottom: 20px;">Use buttons to switch characters. They will rotate automatically.</p>
+
+            <div class="menu-buttons" style="flex-direction: row; margin-bottom: 30px;">
+                <button onclick="switchShowcase('mecha')" style="background-color: #3498db;">G-Bot (Mecha)</button>
+                <button onclick="switchShowcase('teddy')" style="background-color: #e67e22;">Mr. Fluffs (Teddy)</button>
+                <button onclick="switchShowcase('doll')" style="background-color: #e74c3c;">Bella (Doll)</button>
+            </div>
+
+            <button class="back-btn" onclick="exitShowcase()" style="margin-top: auto; margin-bottom: 40px; font-size: 1.5em; padding: 15px 40px; background-color: #c0392b;">Exit Showcase</button>
         </div>
 
         <!-- CHARACTER SELECT -->
